@@ -2,6 +2,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from MainApp.models import Snippet
 from MainApp.forms import SnippetForm
+from django.core.exceptions import ObjectDoesNotExist
  
 def index_page(request):
     context = {'pagename': 'PythonBin'}
@@ -37,9 +38,15 @@ def snippets_page(request):
     return render(request, 'pages/view_snippets.html', context)
 
 def detail_snippet_page(request, snippet_id):
-    snippet = Snippet.objects.get(id=snippet_id)
+    try:
+        snippet = Snippet.objects.get(id=snippet_id)
+    except ObjectDoesNotExist:
+        raise Http404
+
     context = {
-        "snippet" : snippet
+        'pagename' : 'Просмотр: {snippet.name}',
+        'snippet' : snippet,
+        'type' : 'view'
     }
     return render(request, 'pages/detail.snippet.html', context)
 
@@ -51,3 +58,28 @@ def detail_snippet_page(request, snippet_id):
 #         snippet = Snippet(name=name, lang=lang, code=code)
 #         snippet.save()
 #     return redirect('list')
+
+def edit_snippet_page(request, snippet_id):
+    try:
+        snippet = Snippet.objects.get(id=snippet_id)
+    except ObjectDoesNotExist:
+        raise Http404
+    
+    if request.method == "GET":
+        context = {
+            'pagename' : 'Редактирование: {snippet.name}',
+            'snippet' : snippet,
+            'type' : 'edit'
+        }
+        return render(request, 'pages/detail.snippet.html', context)
+    
+    if request.method == "POST":
+        form_data = request.POST
+        snippet.name = form_data["name"]
+        snippet.code = form_data["code"]
+        snippet.creation_date = form_data["creation_date"]
+        snippet.save()
+        return redirect('list')
+
+
+

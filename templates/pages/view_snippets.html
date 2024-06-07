@@ -24,7 +24,10 @@
                     {% for snippet in snippets %}
                     <tr>
                         <td scope="row">{{ snippet.id }}</td>
-                        <td><a href="{% url 'detail' snippet.id %}">{{ snippet.name }}</a></td>
+                        <td>
+                            <a href="{% url 'detail' snippet.id %}">{{ snippet.name }}</a>
+                            <a href="{% url 'edit' snippet.id %}"><i class="fas fa-edit"></i></a>
+                        </td>
                         <td>{{ snippet.creation_date }}</td>
                         <td style="text-align: center;"><a href="{% url 'delete' snippet.id %}">🗑</a></td>
                     </tr>
